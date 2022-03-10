@@ -15,7 +15,7 @@ Then run the executable as follows:
 ./test
 ```
 
-You can change the example by uncommenting one of the Makefile lines and recompiling. The examples are in the file example.h. 
+You can change the example by uncommenting one of the Makefile lines and recompile it. The examples are in the file example.h. 
 ```makefile
 # CFLAGS += -DPT_ZEROS
 # CFLAGS += -DPT_ZERO_AAD
@@ -30,7 +30,7 @@ make clean
 # Details
 ## Dependencies
 
-In order to facilitate integration with OpenSSL, we are inspired by the AES-GCM code by defining the same functions and reusing the structure used.
+In order to ease the integration with OpenSSL, we have used the same structures and functions implemented in AES-GCM code.
 
 ```c++
 typedef struct gcm128_context {
@@ -51,10 +51,10 @@ typedef struct gcm128_context {
 } GCM128_CONTEXT;
 ```
 
-Due to a lack of knowledge of the OpenSSL architecture (with the providers directory), we were unable to integrate our code. Therefore, we have reused the AES and AES-CTR functions from the repository:
+Due to a lack of knowledge of the OpenSSL architecture (with the providers directory), we were unable to integrate our code to the project. Therefore, we have used the AES and AES-CTR functions from this repository:
 [kokke / Tiny AES in C](https://github.com/kokke/tiny-AES-c)
 
-And we used the code of the POLYVAL function created by:
+We also used the code of the POLYVAL_Horner function created by:
 [Shay-Gueron / AES-GCM-SIV](https://github.com/Shay-Gueron/AES-GCM-SIV)
 
 These dependencies have been placed in the utils directory.
