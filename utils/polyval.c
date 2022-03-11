@@ -140,7 +140,7 @@ void Polyval_Horner(unsigned char* TAG,
 					unsigned char* inp,
 					int length)
 {
-	__m128i TMP0, TMP1, TMP2, TMP3, TMP4, T, POLY, H;
+	__m128i TMP1, TMP2, TMP3, TMP4, T, POLY, H;
 	int i=0;
 	if (length==0)
 		return;

@@ -67,9 +67,9 @@ int CRYPTO_gcm128_siv_encrypt(GCM128_CONTEXT *ctx, const unsigned char *in,
 	len_blk[1] = (uint64_t)(ctx->len.u[1]) * 8;
 	uint8_t S_s[TAG_LENGTH + 1];
 	memset(S_s, 0, TAG_LENGTH + 1);
-	Polyval_Horner(S_s, keys.tag_key, ctx->Xi.c, ctx->len.u[0]);
-	Polyval_Horner(S_s, keys.tag_key, in, ctx->len.u[1]);
-	Polyval_Horner(S_s, keys.tag_key, len_blk, TAG_LENGTH);
+	Polyval_Horner(S_s, keys.tag_key, (uint8_t *) ctx->Xi.c, ctx->len.u[0]);
+	Polyval_Horner(S_s, keys.tag_key, (uint8_t *) in, ctx->len.u[1]);
+	Polyval_Horner(S_s, keys.tag_key, (uint8_t *) len_blk, TAG_LENGTH);
 
 	for (size_t i = 0; i < NONCE_LENGTH; i++)	{
 		S_s[i] ^= ctx->Yi.c[i];
@@ -119,9 +119,9 @@ int CRYPTO_gcm128_siv_decrypt(GCM128_CONTEXT *ctx, const unsigned char *in,
 	len_blk[1] = (uint64_t)(ctx->len.u[1]) * BYTE_LENGTH;
 	uint8_t S_s[TAG_LENGTH + 1];
 	memset(S_s, 0, TAG_LENGTH + 1);
-	Polyval_Horner(S_s, keys.tag_key, ctx->Xi.c, ctx->len.u[0]);
-	Polyval_Horner(S_s, keys.tag_key, out, ctx->len.u[1]);
-	Polyval_Horner(S_s, keys.tag_key, len_blk, TAG_LENGTH);
+	Polyval_Horner(S_s, keys.tag_key, (uint8_t *) ctx->Xi.c, ctx->len.u[0]);
+	Polyval_Horner(S_s, keys.tag_key, (uint8_t *) out, ctx->len.u[1]);
+	Polyval_Horner(S_s, keys.tag_key, (uint8_t *) len_blk, TAG_LENGTH);
 
 	for (size_t i = 0; i < NONCE_LENGTH; i++)	{
 		S_s[i] ^= ctx->Yi.c[i];

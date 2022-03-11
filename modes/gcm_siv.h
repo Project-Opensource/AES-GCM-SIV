@@ -70,4 +70,8 @@ extern GCM128_CONTEXT *CRYPTO_gcm128_siv_new(const void *key, block128_f block);
 //      to free memory.
 extern void CRYPTO_gcm128_siv_release(GCM128_CONTEXT *ctx);
 
+// Polyval_Horner : function defined in the utils/polyval.c file.
+extern void Polyval_Horner(unsigned char* TAG, unsigned char* pH, 
+                           unsigned char* inp, int length);
+
 #endif
