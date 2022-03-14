@@ -6,7 +6,11 @@
 #include "modes.h"
 
 #define NONCE_LENGTH 12
+#ifdef AES256
+#define KEY_LENGTH 32
+#else
 #define KEY_LENGTH 16
+#endif
 
 typedef struct gcm128_context {
     /* Following 6 names follow names in GCM specification */
@@ -40,16 +44,14 @@ extern int CRYPTO_gcm128_siv_aad(GCM128_CONTEXT *ctx, const unsigned char *aad,
 //      everything went well, -1 otherwise.
 extern int CRYPTO_gcm128_siv_encrypt(GCM128_CONTEXT *ctx, 
                                      const unsigned char *in, 
-                                     unsigned char *out, size_t len, 
-                                     ctr128_f ctr);
+                                     unsigned char *out, size_t len);
 
 // CRYPTO_gcm128_siv_decrypt : decrypt the cipher text entered as parameter 'in' 
 //      and place the result in the parameter 'out'. Returns 0 if everything 
 //      went well, -1 otherwise.
 extern int CRYPTO_gcm128_siv_decrypt(GCM128_CONTEXT *ctx,
                                      const unsigned char *in, 
-                                     unsigned char *out, size_t len, 
-                                     ctr128_f ctr);
+                                     unsigned char *out, size_t len);
 
 // CRYPTO_gcm128_siv_finish : compares the entered parameter tag with the tag 
 //      contained in the ctx structure that was placed after encryption or 

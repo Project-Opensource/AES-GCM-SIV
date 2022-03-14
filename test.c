@@ -15,10 +15,6 @@
 static void AES_encrypt(const unsigned char in[16], unsigned char out[16], 
                         const void *key);
 
-static void aes_ctr128_encrypt(const unsigned char *in, unsigned char *out,
-                        size_t blocks, const void *key,
-                        unsigned char ivec[16]);
-
 static void test_function(GCM128_CONTEXT *ctx_enc, GCM128_CONTEXT *ctx_dec);
 
 int main(void)
@@ -46,17 +42,6 @@ static void AES_encrypt(const unsigned char in[16],
     AES_ECB_encrypt(&aes_ctx, out);
 }
 
-static void aes_ctr128_encrypt(const unsigned char *in, unsigned char *out,
-                        size_t blocks, const void *key,
-                        unsigned char ivec[16]) 
-{
-    memcpy(out, in, blocks);
-    struct AES_ctx ctx;
-    AES_init_ctx_iv(&ctx, (const uint8_t *) key, ivec);
-    
-    AES_CTR_xcrypt_buffer(&ctx, out, blocks);
-}
-
 # define print_bytes(in, len)                \
 			for (size_t i = 0; i < len; ++i) \
 				printf("%02x ", in[i]);      \
@@ -82,8 +67,7 @@ static void test_function(GCM128_CONTEXT *ctx_enc, GCM128_CONTEXT *ctx_dec)
 	memset(ciphertext, 0, sizeof(gcm_ct));
 	memset(plaintext, 0, sizeof(gcm_pt));
 	CRYPTO_gcm128_siv_aad(ctx_enc, gcm_aad, sizeof(gcm_aad));
-	CRYPTO_gcm128_siv_encrypt(ctx_enc, gcm_pt, ciphertext, sizeof(gcm_pt), 
-		(ctr128_f) aes_ctr128_encrypt);
+	CRYPTO_gcm128_siv_encrypt(ctx_enc, gcm_pt, ciphertext, sizeof(gcm_pt));
 
 	printf("Ciphertext:\n");
 	print_bytes(ciphertext, sizeof(ciphertext))
@@ -99,10 +83,11 @@ static void test_function(GCM128_CONTEXT *ctx_enc, GCM128_CONTEXT *ctx_dec)
 	printf("_______Decryption_______\n\n");
 	memset(ciphertext, 0, sizeof(gcm_ct));
 	memset(plaintext, 0, sizeof(gcm_pt));
+
 	CRYPTO_gcm128_siv_aad(ctx_dec, gcm_aad, sizeof(gcm_aad));
-	CRYPTO_gcm128_siv_decrypt(ctx_dec, gcm_ct, plaintext, sizeof(gcm_ct), 
-		(ctr128_f) aes_ctr128_encrypt);
+	CRYPTO_gcm128_siv_decrypt(ctx_dec, gcm_ct, plaintext, sizeof(gcm_ct));
 	CRYPTO_gcm128_siv_tag(ctx_dec, tag_calculated, AES_BLOCK_SIZE);
+
 	printf("Ciphertext decrypted:\n");
 	print_bytes(plaintext, sizeof(gcm_pt))
 

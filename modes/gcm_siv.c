@@ -6,6 +6,11 @@
 #define BYTE_LENGTH 8
 #define TAG_LENGTH 16
 
+# define print_bytes(in, len)                \
+			for (size_t i = 0; i < len; ++i) \
+				printf("%02x ", in[i]);      \
+			printf("\n\n");	                 \
+
 typedef struct {
 	unsigned char *encryption_key;
 	unsigned char *tag_key;
@@ -24,6 +29,11 @@ static void swap32_endian(uint32_t *value);
 // 		data authentication.
 static void derive_keys(const void *key, uint8_t nonce[NONCE_LENGTH], 
                         pair_keys *keys, block128_f block);
+
+// CTR_encrypt : CTR function with an inverted counter.
+static void CTR_encrypt(const unsigned char *in, unsigned char *out,
+                        size_t length, const void *key,
+                        const unsigned char ivec[16], block128_f block);
 
 // CRYPTO_gcm128_siv_init : Initialize the ctx structure.
 static void CRYPTO_gcm128_siv_init(GCM128_CONTEXT *ctx, const void *key, 
@@ -51,7 +61,7 @@ int CRYPTO_gcm128_siv_aad(GCM128_CONTEXT *ctx, const unsigned char *aad,
 }
 
 int CRYPTO_gcm128_siv_encrypt(GCM128_CONTEXT *ctx, const unsigned char *in, 
-			                  unsigned char *out, size_t len, ctr128_f ctr)
+			                  unsigned char *out, size_t len)
 {
 	ctx->len.u[1] = len;
 	unsigned char tmp1[KEY_LENGTH + 1], tmp2[TAG_LENGTH + 1];
@@ -83,14 +93,15 @@ int CRYPTO_gcm128_siv_encrypt(GCM128_CONTEXT *ctx, const unsigned char *in,
 	memcpy(counter_block, tag, TAG_LENGTH);
 	counter_block[TAG_LENGTH - 1] |= 0x80;
 
-	(*ctr) (in, out, ctx->len.u[1], keys.encryption_key, counter_block);
+	CTR_encrypt(in, out, ctx->len.u[1], keys.encryption_key, counter_block, 
+		ctx->block);
 	memcpy(&out[ctx->len.u[1]], tag, TAG_LENGTH);
 	memcpy(ctx->Xi.c, tag, TAG_LENGTH);
 	return 0;
 }
 
 int CRYPTO_gcm128_siv_decrypt(GCM128_CONTEXT *ctx, const unsigned char *in, 
-							  unsigned char *out, size_t len, ctr128_f ctr)
+							  unsigned char *out, size_t len)
 {
 	if (len == 0 || len < TAG_LENGTH)
 		return 0;
@@ -112,7 +123,12 @@ int CRYPTO_gcm128_siv_decrypt(GCM128_CONTEXT *ctx, const unsigned char *in,
 	memcpy(counter_block, tag, TAG_LENGTH);
 	counter_block[TAG_LENGTH - 1] |= 0x80;
 
-	(*ctr) (in, out, ctx->len.u[1], keys.encryption_key, counter_block);
+	for (size_t k = 0; k < 4; ++k)
+		printf("");
+
+	CTR_encrypt(in, out, ctx->len.u[1], keys.encryption_key, counter_block, 
+		ctx->block);
+
 
 	uint64_t len_blk[2];
 	len_blk[0] = (uint64_t)(ctx->len.u[0]) * BYTE_LENGTH;
@@ -200,6 +216,36 @@ static void derive_keys(const void *key, uint8_t nonce[NONCE_LENGTH],
 		}
 		swap32_endian(&counter);
 		++counter;
+	}
+}
+
+static void CTR_encrypt(const unsigned char *in, unsigned char *out,
+                            size_t length, const void *key,
+                            const unsigned char ivec[16], block128_f block)
+{
+	uint8_t buffer[AES_BLOCK_SIZE + 1];
+	memset(buffer, 0, AES_BLOCK_SIZE + 1);
+	uint8_t iv[AES_BLOCK_SIZE + 1];
+	memcpy(iv, ivec, AES_BLOCK_SIZE);
+	iv[AES_BLOCK_SIZE] = '\0';
+	
+	size_t i;
+	int bi;
+	for (i = 0, bi = AES_BLOCK_SIZE; i < length; ++i, ++bi) {
+		if (bi == AES_BLOCK_SIZE) {
+			(*block) (iv, buffer, key);
+
+			for (bi = 0; bi < BYTE_LENGTH / 2; ++bi) {
+				if (iv[bi] == 0xff) {
+				iv[bi] = 0;
+				continue;
+				} 
+				iv[bi] = (uint8_t)(iv[bi] + 1);
+				break;
+			}
+			bi = 0;
+		}
+		out[i] = (in[i] ^ buffer[bi]);
 	}
 }
 

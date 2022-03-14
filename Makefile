@@ -5,6 +5,8 @@ CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -mpclmul -maes -mavx -I$(modesdir) -I
 # CFLAGS += -DPT_ZEROS
 # CFLAGS += -DPT_ZERO_AAD
 # CFLAGS += -DPT_64
+# CFLAGS += -DAES256 -DO32_CWT1
+# CFLAGS += -DAES256 -DO32_CWT2
 VPATH = $(modesdir):$(utilsdir)
 objects = test.o $(modesdir)gcm_siv.o $(utilsdir)polyval.o $(utilsdir)aes.o
 executable = test
