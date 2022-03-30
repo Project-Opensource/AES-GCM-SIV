@@ -15,11 +15,15 @@ Then run the executable as follows:
 ./test
 ```
 
-You can change the example by uncommenting one of the Makefile lines and recompile it. The examples are in the file example.h. 
+You can change the example by uncommenting one of the Makefile lines and recompile it. The examples are in the file example.h and correspond to the examples present in the RFC. 
+The -DAES256 option allows you to encrypt / decrypt with 256-bit keys.
 ```makefile
 # CFLAGS += -DPT_ZEROS
 # CFLAGS += -DPT_ZERO_AAD
 # CFLAGS += -DPT_64
+# CFLAGS += -DAES256 -DO32_EX
+# CFLAGS += -DAES256 -DO32_CWT1
+# CFLAGS += -DAES256 -DO32_CWT2
 ```
 
 Finally, you can remove the compiled files with the following command:
@@ -78,16 +82,14 @@ extern int CRYPTO_gcm128_siv_aad(GCM128_CONTEXT *ctx, const unsigned char *aad,
 //      everything went well, -1 otherwise.
 extern int CRYPTO_gcm128_siv_encrypt(GCM128_CONTEXT *ctx, 
                                      const unsigned char *in, 
-                                     unsigned char *out, size_t len, 
-                                     ctr128_f ctr);
+                                     unsigned char *out, size_t len);
 
 // CRYPTO_gcm128_siv_decrypt : decrypt the cipher text entered as parameter 'in' 
 //      and place the result in the parameter 'out'. Returns 0 if everything 
 //      went well, -1 otherwise.
 extern int CRYPTO_gcm128_siv_decrypt(GCM128_CONTEXT *ctx,
                                      const unsigned char *in, 
-                                     unsigned char *out, size_t len, 
-                                     ctr128_f ctr);
+                                     unsigned char *out, size_t len);
 
 // CRYPTO_gcm128_siv_finish : compares the entered parameter tag with the tag 
 //      contained in the ctx structure that was placed after encryption or 
@@ -107,10 +109,18 @@ extern GCM128_CONTEXT *CRYPTO_gcm128_siv_new(const void *key, block128_f block);
 // CRYPTO_gcm128_siv_release : releases the ctx structure passed as a parameter 
 //      to free memory.
 extern void CRYPTO_gcm128_siv_release(GCM128_CONTEXT *ctx);
+
+// Polyval_Horner : function defined in the utils/polyval.c file.
+extern void Polyval_Horner(unsigned char* TAG, unsigned char* pH, 
+                           unsigned char* inp, int length);
 ```
 
 These functions use static functions which are:
 ```c++
+// CRYPTO_memcmp : Function that comes from the crypto/cpuid.c directory of the 
+//  	OpenSSL code.
+static int CRYPTO_memcmp(const void * in_a, const void * in_b, size_t len);
+
 // swap32_endian : changes the endian of the encoded value to 32 bits from big 
 //  	endian to little endian and conversely.
 static void swap32_endian(uint32_t *value);
@@ -120,6 +130,11 @@ static void swap32_endian(uint32_t *value);
 // 		data authentication.
 static void derive_keys(const void *key, uint8_t nonce[NONCE_LENGTH], 
                         pair_keys *keys, block128_f block);
+
+// CTR_encrypt : CTR function with an little endian counter.
+static void CTR_encrypt(const unsigned char *in, unsigned char *out,
+                        size_t length, const void *key,
+                        const unsigned char ivec[16], block128_f block);
 
 // CRYPTO_gcm128_siv_init : Initialize the ctx structure.
 static void CRYPTO_gcm128_siv_init(GCM128_CONTEXT *ctx, const void *key, 

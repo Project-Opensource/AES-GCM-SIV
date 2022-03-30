@@ -60,7 +60,7 @@ static void test_function(GCM128_CONTEXT *ctx_enc, GCM128_CONTEXT *ctx_dec)
 	print_bytes(gcm_aad, sizeof(gcm_aad))
 
 	printf("key:\n");
-	print_bytes(gcm_key, AES_BLOCK_SIZE)
+	print_bytes(gcm_key, sizeof(gcm_key))
 
 	// encryption
 	printf("_______Encryption_______\n\n");
