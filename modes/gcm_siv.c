@@ -6,11 +6,6 @@
 #define BYTE_LENGTH 8
 #define TAG_LENGTH 16
 
-# define print_bytes(in, len)                \
-			for (size_t i = 0; i < len; ++i) \
-				printf("%02x ", in[i]);      \
-			printf("\n\n");	                 \
-
 typedef struct {
 	unsigned char *encryption_key;
 	unsigned char *tag_key;
@@ -123,12 +118,8 @@ int CRYPTO_gcm128_siv_decrypt(GCM128_CONTEXT *ctx, const unsigned char *in,
 	memcpy(counter_block, tag, TAG_LENGTH);
 	counter_block[TAG_LENGTH - 1] |= 0x80;
 
-	for (size_t k = 0; k < 4; ++k)
-		printf("");
-
 	CTR_encrypt(in, out, ctx->len.u[1], keys.encryption_key, counter_block, 
 		ctx->block);
-
 
 	uint64_t len_blk[2];
 	len_blk[0] = (uint64_t)(ctx->len.u[0]) * BYTE_LENGTH;
@@ -145,6 +136,12 @@ int CRYPTO_gcm128_siv_decrypt(GCM128_CONTEXT *ctx, const unsigned char *in,
 	S_s[TAG_LENGTH - 1] &= 0x7f;
 	uint8_t expected_tag[TAG_LENGTH + 1];
 	expected_tag[TAG_LENGTH] = '\0';
+
+// When a 256-bit key is used, an offset problem occurs with the AES function.
+# ifdef AES256
+	for (size_t k = 0; k < 4; ++k)
+		printf("");
+# endif
 
 	(*ctx->block) (S_s, expected_tag, keys.encryption_key);
 	memcpy(ctx->Xi.c, expected_tag, TAG_LENGTH);

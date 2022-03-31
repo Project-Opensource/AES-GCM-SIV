@@ -1,10 +1,10 @@
 #ifndef EXAMPLE_H
-#define EXAMPLE_H
+# define EXAMPLE_H
 
-#include <stddef.h>
-#include <stdint.h>
+# include <stddef.h>
+# include <stdint.h>
 
-#if defined(AES256) && defined(O32_EX)
+# if defined(AES256) && defined(O32_EX)
 
 /* AES key */
 const unsigned char gcm_key[] = {
@@ -42,7 +42,7 @@ const unsigned char gcm_tag[] = {
     0x20, 0xec, 0x8c, 0x2c
 };
 
-#elif defined(AES256) && defined(O32_CWT1)
+# elif defined(AES256) && defined(O32_CWT1)
 
 /* AES key */
 const unsigned char gcm_key[] = {
@@ -83,7 +83,7 @@ const unsigned char gcm_tag[] = {
     0x00, 0x00, 0x00, 0x00
 };
 
-#elif defined(AES256) && defined(O32_CWT2)
+# elif defined(AES256) && defined(O32_CWT2)
 
 /* AES key */
 const unsigned char gcm_key[] = {
@@ -123,7 +123,7 @@ const unsigned char gcm_tag[] = {
     0x00, 0x00, 0x00, 0x00
 };
 
-#elif PT_ZEROS
+# elif PT_ZEROS
 
 /* AES key */
 const unsigned char gcm_key[] = {
@@ -156,7 +156,7 @@ const unsigned char gcm_tag[] = {
     0xca, 0x56, 0xde, 0x25
 };
 
-#elif PT_ZERO_AAD
+# elif PT_ZERO_AAD
 
 /* AES key */
 const unsigned char gcm_key[] = {
@@ -191,7 +191,7 @@ const unsigned char gcm_tag[] = {
     0x49, 0x3a, 0x36, 0x4c
 };
 
-#elif PT_64
+# elif PT_64
 // Plaintext 64 bits
 
 /* AES key */
@@ -240,7 +240,7 @@ const unsigned char gcm_tag[] = {
 	0x4a, 0xe2, 0x17, 0x44
 };
 
-#else
+# else
 
 /* AES key */
 const unsigned char gcm_key[] = {
@@ -278,6 +278,6 @@ const unsigned char gcm_tag[] = {
     0x4f, 0xbc, 0xde, 0xb7, 0xe4, 0x79, 0x3f, 0x4a, 0x1d, 0x7e, 0x4f, 0xaa, 
     0x70, 0x10, 0x0a, 0xf1
 };
-#endif
+# endif
 
 #endif

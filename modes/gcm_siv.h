@@ -1,16 +1,16 @@
 #ifndef GCM_SIV_H
-#define GCM_SIV_H
+# define GCM_SIV_H
 
-#include <stddef.h>
-#include <stdint.h>
-#include "modes.h"
+# include <stddef.h>
+# include <stdint.h>
+# include "modes.h"
 
-#define NONCE_LENGTH 12
-#ifdef AES256
-#define KEY_LENGTH 32
-#else
-#define KEY_LENGTH 16
-#endif
+# define NONCE_LENGTH 12
+# ifdef AES256
+#  define KEY_LENGTH 32
+# else
+#  define KEY_LENGTH 16
+# endif
 
 typedef struct gcm128_context {
     /* Following 6 names follow names in GCM specification */
